@@ -14,8 +14,9 @@ def create(options):
         'mkdir -p tmp/plug_package_cache',
         'tmp/bin/easy_install -U distribute',
         'tmp/bin/pip install --no-install --download-cache=tmp/plug_package_cache {0}'.format(options.package),
-        'cp {0} tmp/{1}'.format(options.package, short_package),
-        'tar cfz {0}.plug tmp/plug_package_cache tmp/{0}'.format(short_package),
+        'cp {0} tmp/package.tgz'.format(options.package, short_package),
+        'cp plug.config tmp/plug.config',
+        'tar cfz {0}.plug tmp/plug_package_cache tmp/package.tgz tmp/plug.config'.format(short_package),
     ]
 
     for command in commands:
