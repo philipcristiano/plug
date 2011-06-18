@@ -35,8 +35,7 @@ setup(
     ],
     entry_points="""
     [console_scripts]
-    plug_create = plug.cmd:create
-    plug_install = plug.cmd:install
+    plug = plug.cmd:main
     """
 
 )

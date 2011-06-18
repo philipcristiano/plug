@@ -6,9 +6,7 @@ import subprocess
 parser = OptionParser()
 parser.add_option('-p', '--package', dest='package', help='Source package')
 
-def create():
-    (options, args) = parser.parse_args()
-    print options, args
+def create(options):
     short_package = os.path.split(options.package)[1]
     commands = [
         'rm -rf tmp',
@@ -24,5 +22,12 @@ def create():
         print command
         print
         cmd_args = shlex.split(command)
+        print
+        print command
         p = subprocess.Popen(cmd_args)
         p.wait()
+
+def main():
+    (options, args) = parser.parse_args()
+    print options, args
+    if args[0] == 'create': create(options)
