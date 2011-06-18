@@ -15,3 +15,9 @@ dist:
 
 virtualenv:
 	virtualenv --no-site-packages --distribute .
+
+create:
+	bin/plug create --package=dist/plug-0.1.0.tar.gz
+
+install:
+	sudo bin/plug install --plug=plug-0.1.0.tar.gz.plug
