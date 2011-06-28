@@ -22,6 +22,18 @@ def create(options):
     run_commands(commands)
 
 
+def install(options):
+    short_plug = os.path.split(options.plug)[1]
+    plug_path = plug_path_for_plug_name(short_plug)
+
+    commands = [
+        'mkdir -p "{0}"'.format(plug_path),
+        'tar -xf {0} -C "{1}" --strip-components 1'.format(options.plug, plug_path),
+    ]
+
+    run_commands(commands)
+
+
 def run_commands(commands):
     for command in commands:
         print
@@ -31,15 +43,54 @@ def run_commands(commands):
         p.wait()
 
 
-def install(options):
-    plug_path = '/srv/plug/plugs/{0}'.format(options.plug)
-    commands = [
-        'mkdir -p "{0}"'.format(plug_path),
-        'tar -xf {0} -C "{1}" --strip-components 1'.format(options.plug, plug_path),
-    ]
+def plug_path_for_plug_name(plug_name):
+    return '/srv/plug/plugs/{0}'.format(plug_name)
 
+
+def plug_path_for_running_plug(plug_name):
+    return '{0}/{1}'.format(plug_running_path(), plug_name)
+
+
+def plug_running_path():
+    return '/srv/plug/running_plug'
+
+
+def setup(options):
+    plug_name = options.plug
+    plug_path = plug_path_for_plug_name(plug_name)
+    running_plug = plug_path_for_running_plug(plug_name)
+
+    run = """#!/bin/sh
+
+ROOT={0}
+PID=/var/run/{1}
+
+APP=main:application
+
+if [ -f $PID ]; then rm $PID; fi
+
+cd $ROOT
+exec $ROOT/bin/python
+""".format(running_plug, plug_name)
+
+    commands = [
+        'mkdir -p {0}'.format(running_plug),
+        'cp -r {0} {1}'.format(plug_path, plug_running_path()),
+        'virtualenv --no-site-packages --distribute {0}'.format(running_plug),
+        '{0}/bin/easy_install -U distribute'.format(running_plug),
+        '{0}/bin/pip install {0}/package.tgz --download-cache={0}/plug_package_cache'.format(running_plug),
+    ]
     run_commands(commands)
 
+    with open('{0}/run'.format(running_plug), 'w') as run_file:
+        run_file.write(run)
+
+    commands = [
+        'chmod +x {0}/run'.format(running_plug),
+        'ln -s {0} /etc/sv/{1}'.format(running_plug, plug_name),
+        'ln -s /etc/service/{0} /etc/sv/{0}'.format(plug_name),
+    ]
+    run_commands(commands)
 
 
 def main():
@@ -48,5 +99,6 @@ def main():
     funcs = {
         'create': create,
         'install': install,
+        'setup': setup,
     }
     funcs[args[0]](options)
