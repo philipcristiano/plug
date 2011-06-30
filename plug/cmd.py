@@ -58,8 +58,8 @@ def cmd_setup(options):
 
     commands = [
         'chmod +x {0}/run'.format(running_plug),
-        remove_directory('/etc/sv/{0}'.format(plug_name),
-        remove_directory('/etc/service/{0}'.format(plug_name),
+        remove_directory('/etc/sv/{0}'.format(plug_name)),
+        remove_directory('/etc/service/{0}'.format(plug_name)),
         'ln -s {0} /etc/sv/{1}'.format(running_plug, plug_name),
         'ln -s /etc/sv/{0} /etc/service/{0}'.format(plug_name),
     ]
