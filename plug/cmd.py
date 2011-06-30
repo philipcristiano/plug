@@ -87,7 +87,6 @@ def cmd_setup(options):
         copy(plug_path, plug_running_path()),
         create_virtual_env(running_plug),
         update_distribute(running_plug),
-        '{0}/bin/easy_install -U distribute'.format(running_plug),
         '{0}/bin/pip install {0}/package.tgz --download-cache={0}/plug_package_cache'.format(running_plug),
     ]
     run_commands(commands)
