@@ -7,6 +7,9 @@ parser = OptionParser()
 parser.add_option('--package', dest='package', help='Source package')
 parser.add_option('--plug', dest='plug', help='Plug Path')
 
+
+## Plug Commands
+
 def cmd_create(options):
     short_package = os.path.split(options.package)[1]
     commands = [
@@ -33,7 +36,36 @@ def cmd_install(options):
 
     run_commands(commands)
 
-## Commands
+
+def cmd_setup(options):
+    plug_name = options.plug
+    plug_path = plug_path_for_plug_name(plug_name)
+    running_plug = plug_path_for_running_plug(plug_name)
+
+    run = runit_run_script(running_plug, 'bin/python')
+
+    commands = [
+        make_directory(running_plug),
+        copy(plug_path, plug_running_path()),
+        create_virtual_env(running_plug),
+        update_distribute(running_plug),
+        install_package(running_plug),
+    ]
+    run_commands(commands)
+
+    with open('{0}/run'.format(running_plug), 'w') as run_file:
+        run_file.write(run)
+
+    commands = [
+        'chmod +x {0}/run'.format(running_plug),
+        remove_directory('/etc/sv/{0}'.format(plug_name),
+        remove_directory('/etc/service/{0}'.format(plug_name),
+        'ln -s {0} /etc/sv/{1}'.format(running_plug, plug_name),
+        'ln -s /etc/sv/{0} /etc/service/{0}'.format(plug_name),
+    ]
+    run_commands(commands)
+
+## Internal Commands
 
 def copy(src, dst):
     return 'cp -r "{0}" "{1}"'.format(src, dst)
@@ -69,7 +101,7 @@ exec $ROOT/$COMMAND
 def update_distribute(path):
     return '{0}/bin/easy_install -U distribute'.format(path)
 
-## Paths
+## Path Generation
 
 def plug_path_for_plug_name(plug_name):
     return '/srv/plug/plugs/{0}'.format(plug_name)
@@ -80,35 +112,6 @@ def plug_path_for_running_plug(plug_name):
 def plug_running_path():
     return '/srv/plug/running_plug'
 
-
-def cmd_setup(options):
-    plug_name = options.plug
-    plug_path = plug_path_for_plug_name(plug_name)
-    running_plug = plug_path_for_running_plug(plug_name)
-
-    run = runit_run_script(running_plug, 'bin/python')
-
-    commands = [
-        make_directory(running_plug),
-        copy(plug_path, plug_running_path()),
-        create_virtual_env(running_plug),
-        update_distribute(running_plug),
-        install_package(running_plug),
-    ]
-    run_commands(commands)
-
-    with open('{0}/run'.format(running_plug), 'w') as run_file:
-        run_file.write(run)
-
-    commands = [
-        'chmod +x {0}/run'.format(running_plug),
-        'rm -rf /etc/sv/{0} /etc/service/{0}'.format(plug_name),
-        'ln -s {0} /etc/sv/{1}'.format(running_plug, plug_name),
-        'ln -s /etc/sv/{0} /etc/service/{0}'.format(plug_name),
-    ]
-    run_commands(commands)
-
-
 def run_commands(commands):
     for command in commands:
         print
@@ -116,7 +119,6 @@ def run_commands(commands):
         cmd_args = shlex.split(command)
         p = subprocess.Popen(cmd_args)
         p.wait()
-
 
 def main():
     (options, args) = parser.parse_args()
