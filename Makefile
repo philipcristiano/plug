@@ -1,10 +1,7 @@
-NOSETESTS = nosetests -m '([Dd]escribe|[Ww]hen|[Ss]hould|[Tt]est)' -e DingusTestCase
+NOSETESTS = bin/nosetests -m '([Dd]escribe|[Ww]hen|[Ss]hould|[Tt]est)' -e DingusTestCase
 
-unit-test:
-	$(NOSETESTS) tests/unit/*.py
-
-acceptance-test:
-	$(NOSETESTS) tests/acceptance/*.py
+test:
+	$(NOSETESTS) tests/*.py
 
 clean:
 	-rm -rf dist
@@ -22,6 +19,7 @@ virtualenv:
 
 requirements: virtualenv
 	bin/pip install -r requirements.pip
+	bin/easy_install nose_machineout
 
 create: dist
 	bin/plug create --package=dist/plug-0.1.0.tar.gz
