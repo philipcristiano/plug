@@ -28,7 +28,7 @@ def cmd_install(options):
 
     commands = [
         make_directory(plug_path),
-        'tar -xf {0} -C "{1}" --strip-components 1'.format(options.plug, plug_path),
+        extract_plug(options.plug, plug_path),
     ]
 
     run_commands(commands)
@@ -43,6 +43,9 @@ def create_virtual_env(path):
 
 def download_dependencies(path, package):
     return '{0}/bin/pip install --no-install --download-cache=tmp/plug_package_cache {1}'.format(path, options.package),
+
+def extract_plug(plug, path):
+    return  'tar -xf {0} -C "{1}" --strip-components 1'.format(plug, path)
 
 def install_package(path):
     return '{0}/bin/pip install {0}/package.tgz --download-cache={0}/plug_package_cache'.format(path),
