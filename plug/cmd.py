@@ -44,6 +44,9 @@ def create_virtual_env(path):
 def download_dependencies(path, package):
     return '{0}/bin/pip install --no-install --download-cache=tmp/plug_package_cache {1}'.format(path, options.package),
 
+def install_package(path):
+    return '{0}/bin/pip install {0}/package.tgz --download-cache={0}/plug_package_cache'.format(path),
+
 def make_directory(path):
     return 'mkdir -p {0}'.format(path)
 
@@ -87,7 +90,7 @@ def cmd_setup(options):
         copy(plug_path, plug_running_path()),
         create_virtual_env(running_plug),
         update_distribute(running_plug),
-        '{0}/bin/pip install {0}/package.tgz --download-cache={0}/plug_package_cache'.format(running_plug),
+        install_package(running_plug),
     ]
     run_commands(commands)
 
