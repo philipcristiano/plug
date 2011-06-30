@@ -80,7 +80,7 @@ def extract_plug(plug, path):
     return  'tar -xf {0} -C "{1}" --strip-components 1'.format(plug, path)
 
 def install_package(path):
-    return '{0}/bin/pip install {0}/package.tgz --download-cache={0}/plug_package_cache'.format(path),
+    return '{0}/bin/pip install {0}/package.tgz --download-cache={0}/plug_package_cache'.format(path)
 
 def make_directory(path):
     return 'mkdir -p {0}'.format(path)
