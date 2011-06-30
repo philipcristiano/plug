@@ -15,8 +15,8 @@ def cmd_create(options):
         make_directory('tmp/plug_package_cache'),
         update_distribute('tmp'),
         download_dependencies('tmp', options.packge),
-        'cp {0} tmp/package.tgz'.format(options.package, short_package),
-        'cp plug.config tmp/plug.config',
+        copy(options.package, 'tmp/package.tgz'),
+        copy('plug.config', 'tmp/plug.config'),
         'tar cfz {0}.plug tmp/plug_package_cache tmp/package.tgz tmp/plug.config'.format(short_package),
     ]
     run_commands(commands)
@@ -32,6 +32,9 @@ def cmd_install(options):
     ]
 
     run_commands(commands)
+
+def copy(src, dst):
+    return 'cp -r "{0}" "{1}"'.format(src, dst)
 
 def create_virtual_env(path):
     return 'virtualenv --no-site-packages --distribute {0}'.format(path)
@@ -82,7 +85,7 @@ exec $ROOT/bin/python
 
     commands = [
         make_directory(running_plug),
-        'cp -r {0} {1}'.format(plug_path, plug_running_path()),
+        copy(plug_path, plug_running_path()),
         create_virtual_env(running_plug),
         update_distribute(running_plug),
         '{0}/bin/easy_install -U distribute'.format(running_plug),
