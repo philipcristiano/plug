@@ -60,8 +60,8 @@ def cmd_setup(options):
         'chmod +x {0}/run'.format(running_plug),
         remove_directory('/etc/sv/{0}'.format(plug_name)),
         remove_directory('/etc/service/{0}'.format(plug_name)),
-        'ln -s {0} /etc/sv/{1}'.format(running_plug, plug_name),
-        'ln -s /etc/sv/{0} /etc/service/{0}'.format(plug_name),
+        link(running_plug, '/etc/sv/{0}'.format(plug_name)),
+        link('/etc/sv/{0}'.format(plug_name), '/etc/service/{0}'.format(plug_name))
     ]
     run_commands(commands)
 
@@ -81,6 +81,9 @@ def extract_plug(plug, path):
 
 def install_package(path):
     return '{0}/bin/pip install {0}/package.tgz --download-cache={0}/plug_package_cache'.format(path)
+
+def link(src, dst):
+    return 'ln -s "{0}" "{1}"'.format(src, dst)
 
 def make_directory(path):
     return 'mkdir -p {0}'.format(path)
