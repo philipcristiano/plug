@@ -33,6 +33,8 @@ def cmd_install(options):
 
     run_commands(commands)
 
+## Commands
+
 def copy(src, dst):
     return 'cp -r "{0}" "{1}"'.format(src, dst)
 
@@ -42,24 +44,32 @@ def create_virtual_env(path):
 def download_dependencies(path, package):
     return '{0}/bin/pip install --no-install --download-cache=tmp/plug_package_cache {1}'.format(path, options.package),
 
-
 def make_directory(path):
     return 'mkdir -p {0}'.format(path)
 
 def remove_directory(path):
     return 'rm -rf {0}'.format(path)
 
+def runit_run_script(root_path, command):
+    return """#!/bin/sh
+
+ROOT={0}
+COMMAND={1}
+
+cd $ROOT
+exec $ROOT/$COMMAND
+""".format(root_path, command)
+
 def update_distribute(path):
     return '{0}/bin/easy_install -U distribute'.format(path)
 
+## Paths
 
 def plug_path_for_plug_name(plug_name):
     return '/srv/plug/plugs/{0}'.format(plug_name)
 
-
 def plug_path_for_running_plug(plug_name):
     return '{0}/{1}'.format(plug_running_path(), plug_name)
-
 
 def plug_running_path():
     return '/srv/plug/running_plug'
@@ -70,18 +80,7 @@ def cmd_setup(options):
     plug_path = plug_path_for_plug_name(plug_name)
     running_plug = plug_path_for_running_plug(plug_name)
 
-    run = """#!/bin/sh
-
-ROOT={0}
-PID=/var/run/{1}
-
-APP=main:application
-
-if [ -f $PID ]; then rm $PID; fi
-
-cd $ROOT
-exec $ROOT/bin/python
-""".format(running_plug, plug_name)
+    run = runit_run_script(running_plug, 'bin/python')
 
     commands = [
         make_directory(running_plug),
