@@ -55,14 +55,16 @@ def cmd_setup(options):
 
     plug_config = ConfigObj(config_path)
     command = plug_config['command']
+    user = plug_config['user']
 
-    run = runit_run_script(running_plug, command)
+    run = runit_run_script(running_plug, command, user)
 
     with open('{0}/run'.format(running_plug), 'w') as run_file:
         run_file.write(run)
 
     commands = [
         'chmod +x {0}/run'.format(running_plug),
+        chown(user, running_plug),
         remove_directory('/etc/sv/{0}'.format(plug_name)),
         remove_directory('/etc/service/{0}'.format(plug_name)),
         link(running_plug, '/etc/sv/{0}'.format(plug_name)),
@@ -71,6 +73,9 @@ def cmd_setup(options):
     run_commands(commands)
 
 ## Internal Commands
+
+def chown(user, path):
+    return 'chown -R {0} "{1}"'.format(user, path)
 
 def copy(src, dst):
     return 'cp -r "{0}" "{1}"'.format(src, dst)
@@ -96,15 +101,11 @@ def make_directory(path):
 def remove_directory(path):
     return 'rm -rf {0}'.format(path)
 
-def runit_run_script(root_path, command):
+def runit_run_script(root_path, command, user):
     return """#!/bin/sh
 
-ROOT="{0}"
-COMMAND="{1}"
-
-cd $ROOT
-exec $ROOT/$COMMAND
-""".format(root_path, command)
+exec su {2} -c "cd {0}; {0}/{1}"
+""".format(root_path, command, user)
 
 def update_distribute(path):
     return '{0}/bin/easy_install -U distribute'.format(path)
