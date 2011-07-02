@@ -25,6 +25,12 @@ create: dist
 	bin/plug create --package=dist/plug-0.1.0.tar.gz
 	cp plug-*.tar.gz.plug plug.plug
 
-install: create
-	tar cfz puppet.tgz puppet
+install: create package_puppet
 	bin/fab deploy
+
+package_puppet:
+	tar cfz puppet.tgz puppet
+
+bootstrap: package_puppet
+	bin/fab bootstrap
+

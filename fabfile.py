@@ -8,7 +8,6 @@ def bootstrap():
     sudo('apt-get update')
     sudo('easy_install -U distribute')
 
-def deploy():
     put('puppet.tgz', '/tmp/puppet.tgz')
 
     sudo('rm -rf /etc/puppet')
@@ -16,8 +15,7 @@ def deploy():
         sudo('tar xfz /tmp/puppet.tgz')
     sudo('puppet apply /etc/puppet/manifests/server.pp')
 
-    sudo('easy_install -U distribute')
-
+def deploy():
     put('dist/plug-latest.tar.gz', '/tmp/plug.tar.gz')
     sudo('pip install /tmp/plug.tar.gz')
 
