@@ -18,7 +18,7 @@ def cmd_create(options):
         create_virtual_env('tmp'),
         make_directory('tmp/plug_package_cache'),
         update_distribute('tmp'),
-        download_dependencies('tmp', options.packge),
+        download_dependencies('tmp', options.package),
         copy(options.package, 'tmp/package.tgz'),
         copy('plug.config', 'tmp/plug.config'),
         'tar cfz {0}.plug tmp/plug_package_cache tmp/package.tgz tmp/plug.config'.format(short_package),
@@ -75,7 +75,7 @@ def create_virtual_env(path):
     return 'virtualenv --no-site-packages --distribute {0}'.format(path)
 
 def download_dependencies(path, package):
-    return '{0}/bin/pip install --no-install --download-cache=tmp/plug_package_cache {1}'.format(path, options.package),
+    return '{0}/bin/pip install --no-install --download-cache=tmp/plug_package_cache {1}'.format(path, package)
 
 def extract_plug(plug, path):
     return  'tar -xf {0} -C "{1}" --strip-components 1'.format(plug, path)
