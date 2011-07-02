@@ -1,3 +1,4 @@
+from configobj import ConfigObj
 from optparse import OptionParser
 import os.path
 import shlex

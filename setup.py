@@ -21,7 +21,9 @@ setup(
     author_email='plug@philipcristiano.com',
     license='BSD',
     packages=['plug'],
-    install_requires=[''],
+    install_requires=[
+        'configobj==4.6.0',
+    ],
     test_suite='tests',
     long_description=read('README.rst'),
     zip_safe=True,
