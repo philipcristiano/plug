@@ -39,5 +39,4 @@ setup(
     [console_scripts]
     plug = plug.cmd:main
     """
-
 )

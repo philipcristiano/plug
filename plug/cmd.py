@@ -42,8 +42,7 @@ def cmd_setup(options):
     plug_name = options.plug
     plug_path = plug_path_for_plug_name(plug_name)
     running_plug = plug_path_for_running_plug(plug_name)
-
-    run = runit_run_script(running_plug, 'bin/python')
+    config_path = '{0}/plug.config'.format(running_plug)
 
     commands = [
         make_directory(running_plug),
@@ -53,6 +52,11 @@ def cmd_setup(options):
         install_package(running_plug),
     ]
     run_commands(commands)
+
+    plug_config = ConfigObj(config_path)
+    command = plug_config['command']
+
+    run = runit_run_script(running_plug, command)
 
     with open('{0}/run'.format(running_plug), 'w') as run_file:
         run_file.write(run)
@@ -95,8 +99,8 @@ def remove_directory(path):
 def runit_run_script(root_path, command):
     return """#!/bin/sh
 
-ROOT={0}
-COMMAND={1}
+ROOT="{0}"
+COMMAND="{1}"
 
 cd $ROOT
 exec $ROOT/$COMMAND
