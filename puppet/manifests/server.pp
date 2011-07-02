@@ -4,6 +4,11 @@ class lucid64 {
     command => "/usr/bin/apt-get -q -q update",
   }
 
+  user { "plug_user":
+    comment => 'This user was created by Puppet',
+    ensure => 'present',
+  }
+
   package { "runit":
     ensure => present,
   }
