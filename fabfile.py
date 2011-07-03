@@ -20,7 +20,8 @@ def deploy():
     sudo('pip install /tmp/plug.tar.gz')
 
     sudo('rm -rf /srv/plug')
-    put('plug.plug', '/tmp/plug.plug')
-    sudo('plug install --plug=/tmp/plug.plug')
-
-    sudo('plug setup --plug=plug.plug')
+    put('*.plug', '/tmp')
+    sudo('plug install --plug=/tmp/plug-0.1.0.server1.plug')
+    sudo('plug setup --plug=plug-0.1.0.server1.plug')
+    sudo('plug install --plug=/tmp/plug-0.1.0.server2.plug')
+    sudo('plug setup --plug=plug-0.1.0.server2.plug')

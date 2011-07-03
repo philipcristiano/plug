@@ -10,7 +10,7 @@ develop:
 	bin/python setup.py develop
 
 .PHONY: dist
-dist: clean
+dist: clean develop
 	bin/python setup.py sdist
 	cp dist/plug-*.tar.gz dist/plug-latest.tar.gz
 
@@ -23,7 +23,6 @@ requirements: virtualenv
 
 create: dist
 	bin/plug create --package=dist/plug-0.1.0.tar.gz
-	cp plug-*.tar.gz.plug plug.plug
 
 install: create package_puppet
 	bin/fab deploy

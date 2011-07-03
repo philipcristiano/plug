@@ -14,6 +14,7 @@ parser.add_option('--number', dest='number', help='Number of instances', default
 
 def cmd_create(options):
     short_package = os.path.split(options.package)[1]
+    short_package = short_package.split('.tar.gz')[0]
     commands = [
         remove_directory('tmp'),
         create_virtual_env('tmp'),
@@ -21,10 +22,18 @@ def cmd_create(options):
         update_distribute('tmp'),
         download_dependencies('tmp', options.package),
         copy(options.package, 'tmp/package.tgz'),
-        copy('plug.config', 'tmp/plug.config'),
-        'tar cfz {0}.plug tmp/plug_package_cache tmp/package.tgz tmp/plug.config'.format(short_package),
     ]
     run_commands(commands)
+
+    config = ConfigObj('plug.config')
+    for name, settings in config.items():
+        plug_config = ConfigObj('tmp/plug.config')
+        plug_config.update(settings)
+        plug_config.write()
+        commands = [
+            'tar cfz {0}.{1}.plug tmp/plug_package_cache tmp/package.tgz tmp/plug.config'.format(short_package, name),
+        ]
+        run_commands(commands)
 
 
 def cmd_install(options):
@@ -34,9 +43,6 @@ def cmd_install(options):
     commands = [
         make_directory(plug_path),
         extract_plug(options.plug, plug_path),
-        #make_directory(base_running_path()),
-        #remove_directory(running_plug),
-        #copy(plug_path , running_plug),
         create_virtual_env(plug_path),
         update_distribute(plug_path),
         install_package(plug_path),
@@ -119,12 +125,6 @@ def update_distribute(path):
 ## Path Generation
 def installed_plug_path(plug_name):
     return '/srv/plug/plugs/{0}'.format(plug_name)
-
-def path_for_running_plug(plug_name):
-    return '{0}/{1}'.format(base_running_path(), plug_name)
-
-def base_running_path():
-    return '/srv/plug/running_plug'
 
 def run_commands(commands):
     for command in commands:
