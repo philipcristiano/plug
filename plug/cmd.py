@@ -1,8 +1,10 @@
 from configobj import ConfigObj
 from optparse import OptionParser
+import os
 import os.path
 import shlex
 import subprocess
+import sys
 
 parser = OptionParser()
 parser.add_option('--package', dest='package', help='Source package')
@@ -74,12 +76,20 @@ def cmd_setup(options):
     for i in range(instance_number):
         instance_name = '{0}.{1}'.format(plug_name, i)
         commands = [
-            remove_directory('/etc/sv/{0}'.format(instance_name)),
-            remove_directory('/etc/service/{0}'.format(instance_name)),
             link(plug_path, '/etc/sv/{0}'.format(instance_name)),
             link('/etc/sv/{0}'.format(instance_name), '/etc/service/{0}'.format(instance_name))
         ]
         run_commands(commands)
+
+def cmd_status(options):
+    for service in sorted(os.listdir('/etc/service')):
+        if os.path.exists(os.path.join('/etc/service', service, 'plug.config')):
+            print_command('sv status {0}'.format(service))
+
+
+def cmd_list(options):
+    for item in installed_plugs():
+        print item
 
 ## Internal Commands
 
@@ -101,8 +111,11 @@ def extract_plug(plug, path):
 def install_package(path):
     return '{0}/bin/pip install {0}/package.tgz --download-cache={0}/plug_package_cache'.format(path)
 
+def installed_plugs():
+    return sorted(os.listdir(install_path()))
+
 def link(src, dst):
-    return 'ln -s "{0}" "{1}"'.format(src, dst)
+    return 'ln -fs "{0}" "{1}"'.format(src, dst)
 
 def make_directory(path):
     return 'mkdir -p {0}'.format(path)
@@ -124,7 +137,10 @@ def update_distribute(path):
 
 ## Path Generation
 def installed_plug_path(plug_name):
-    return '/srv/plug/plugs/{0}'.format(plug_name)
+    return '{0}/{1}'.format(install_path(), plug_name)
+
+def install_path():
+    return '/srv/plug/plugs'
 
 def run_commands(commands):
     for command in commands:
@@ -134,11 +150,19 @@ def run_commands(commands):
         p = subprocess.Popen(cmd_args)
         p.wait()
 
+def print_command(command):
+    cmd_args = shlex.split(command)
+    p = subprocess.Popen(cmd_args, stdout=sys.stdout)
+    p.wait()
+
+
 def main():
     (options, args) = parser.parse_args()
     funcs = {
         'create': cmd_create,
         'install': cmd_install,
         'setup': cmd_setup,
+        'status': cmd_status,
+        'list': cmd_list,
     }
     funcs[args[0]](options)
