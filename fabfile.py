@@ -6,7 +6,6 @@ env.user = 'vagrant'
 
 def bootstrap():
     sudo('apt-get update')
-    sudo('easy_install -U distribute')
 
     put('puppet.tgz', '/tmp/puppet.tgz')
 
@@ -15,13 +14,18 @@ def bootstrap():
         sudo('tar xfz /tmp/puppet.tgz')
     sudo('puppet apply /etc/puppet/manifests/server.pp')
 
+    sudo('easy_install -U distribute')
+
 def deploy():
     put('dist/plug-latest.tar.gz', '/tmp/plug.tar.gz')
     sudo('pip install /tmp/plug.tar.gz')
 
-    sudo('rm -rf /srv/plug')
+def test():
+    #sudo('rm -rf /srv/plug')
     put('*.plug', '/tmp')
     sudo('plug install --plug=/tmp/plug-0.1.0.server1.plug')
     sudo('plug setup --plug=plug-0.1.0.server1.plug')
-    sudo('plug install --plug=/tmp/plug-0.1.0.server2.plug')
-    sudo('plug setup --plug=plug-0.1.0.server2.plug')
+    #sudo('plug install --plug=/tmp/plug-0.1.0.server2.plug')
+    #sudo('plug setup --plug=plug-0.1.0.server2.plug')
+    sudo('plug list')
+    sudo('plug status')

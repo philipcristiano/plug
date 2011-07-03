@@ -24,8 +24,11 @@ requirements: virtualenv
 create: dist
 	bin/plug create --package=dist/plug-0.1.0.tar.gz
 
-install: create package_puppet
+deploy: dist
 	bin/fab deploy
+
+deployed_test: create package_puppet
+	bin/fab deploy test
 
 package_puppet:
 	tar cfz puppet.tgz puppet
