@@ -7,6 +7,7 @@ import subprocess
 parser = OptionParser()
 parser.add_option('--package', dest='package', help='Source package')
 parser.add_option('--plug', dest='plug', help='Plug Path')
+parser.add_option('--number', dest='number', help='Number of instances', default="1")
 
 
 ## Plug Commands
@@ -27,50 +28,52 @@ def cmd_create(options):
 
 
 def cmd_install(options):
-    short_plug = os.path.split(options.plug)[1]
-    plug_path = plug_path_for_plug_name(short_plug)
+    plug_name = os.path.split(options.plug)[1]
+    plug_path = installed_plug_path(plug_name)
 
     commands = [
         make_directory(plug_path),
         extract_plug(options.plug, plug_path),
+        #make_directory(base_running_path()),
+        #remove_directory(running_plug),
+        #copy(plug_path , running_plug),
+        create_virtual_env(plug_path),
+        update_distribute(plug_path),
+        install_package(plug_path),
     ]
 
     run_commands(commands)
 
-
-def cmd_setup(options):
-    plug_name = options.plug
-    plug_path = plug_path_for_plug_name(plug_name)
-    running_plug = plug_path_for_running_plug(plug_name)
-    config_path = '{0}/plug.config'.format(running_plug)
-
-    commands = [
-        make_directory(running_plug),
-        copy(plug_path, plug_running_path()),
-        create_virtual_env(running_plug),
-        update_distribute(running_plug),
-        install_package(running_plug),
-    ]
-    run_commands(commands)
+    config_path = '{0}/plug.config'.format(plug_path)
 
     plug_config = ConfigObj(config_path)
     command = plug_config['command']
     user = plug_config['user']
 
-    run = runit_run_script(running_plug, command, user)
+    run = runit_run_script(plug_path, command, user)
 
-    with open('{0}/run'.format(running_plug), 'w') as run_file:
+    with open('{0}/run'.format(plug_path), 'w') as run_file:
         run_file.write(run)
 
     commands = [
-        'chmod +x {0}/run'.format(running_plug),
-        chown(user, running_plug),
-        remove_directory('/etc/sv/{0}'.format(plug_name)),
-        remove_directory('/etc/service/{0}'.format(plug_name)),
-        link(running_plug, '/etc/sv/{0}'.format(plug_name)),
-        link('/etc/sv/{0}'.format(plug_name), '/etc/service/{0}'.format(plug_name))
+        'chmod +x {0}/run'.format(plug_path),
+        chown(user, plug_path),
     ]
     run_commands(commands)
+
+def cmd_setup(options):
+    plug_name = options.plug
+    instance_number = int(options.number)
+    plug_path = installed_plug_path(plug_name)
+    for i in range(instance_number):
+        instance_name = '{0}.{1}'.format(plug_name, i)
+        commands = [
+            remove_directory('/etc/sv/{0}'.format(instance_name)),
+            remove_directory('/etc/service/{0}'.format(instance_name)),
+            link(plug_path, '/etc/sv/{0}'.format(instance_name)),
+            link('/etc/sv/{0}'.format(instance_name), '/etc/service/{0}'.format(instance_name))
+        ]
+        run_commands(commands)
 
 ## Internal Commands
 
@@ -78,7 +81,7 @@ def chown(user, path):
     return 'chown -R {0} "{1}"'.format(user, path)
 
 def copy(src, dst):
-    return 'cp -r "{0}" "{1}"'.format(src, dst)
+    return 'cp -r {0} {1}'.format(src, dst)
 
 def create_virtual_env(path):
     return 'virtualenv --no-site-packages --distribute {0}'.format(path)
@@ -98,6 +101,9 @@ def link(src, dst):
 def make_directory(path):
     return 'mkdir -p {0}'.format(path)
 
+def move(src, dst):
+    return 'mv "{0}" "{1}"'.format(src, dst)
+
 def remove_directory(path):
     return 'rm -rf {0}'.format(path)
 
@@ -111,14 +117,13 @@ def update_distribute(path):
     return '{0}/bin/easy_install -U distribute'.format(path)
 
 ## Path Generation
-
-def plug_path_for_plug_name(plug_name):
+def installed_plug_path(plug_name):
     return '/srv/plug/plugs/{0}'.format(plug_name)
 
-def plug_path_for_running_plug(plug_name):
-    return '{0}/{1}'.format(plug_running_path(), plug_name)
+def path_for_running_plug(plug_name):
+    return '{0}/{1}'.format(base_running_path(), plug_name)
 
-def plug_running_path():
+def base_running_path():
     return '/srv/plug/running_plug'
 
 def run_commands(commands):
