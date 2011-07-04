@@ -8,11 +8,9 @@ Supervisor and the problems of managing large numbers of processe.
 Installing
 ==========
 
-Since many parts of Plug are still in flux you should clone the repo and run
+Use pip!
 
-    python setup.py install
-
-to install Plug.
+    pip install plug
 
 
 Creating a Plug
