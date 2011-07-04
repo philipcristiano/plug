@@ -24,7 +24,9 @@ To create a plug you create a config file with minimal information then run
 
 The config file looks something like:
 
-    [server1] command=bin/python -m SimpleHTTPServer 8001 user=plug_user
+    [server1]
+    command=bin/python -m SimpleHTTPServer 8001
+    user=plug_user
 
 You will be left with a plug:
 
