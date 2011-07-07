@@ -69,6 +69,7 @@ def cmd_install(options):
     ]
     run_commands(commands)
 
+
 def cmd_setup(options):
     plug_name = options.plug
     instance_number = int(options.number)
@@ -91,8 +92,21 @@ def cmd_list(options):
     for item in installed_plugs():
         print item
 
-## Internal Commands
+def cmd_uninstall(options):
+    if not options.plug in installed_plugs():
+        print 'That plug is not installed, for a list of install plugs run `plug list`'
+        return
+    commands = [
+        remove_directory(installed_plug_path(options.plug)),
+    ]
+    for directory in ['/etc/service', '/etc/sv']:
+        for service in sorted(os.listdir(directory)):
+            if service.startswith(options.plug):
+                service_path = '{0}/{1}'.format(directory, service)
+                commands.append(remove_directory(service_path))
+    run_commands(commands)
 
+## Internal Commands
 def chown(user, path):
     return 'chown -R {0} "{1}"'.format(user, path)
 
@@ -164,5 +178,6 @@ def main():
         'setup': cmd_setup,
         'status': cmd_status,
         'list': cmd_list,
+        'uninstall': cmd_uninstall,
     }
     funcs[args[0]](options)

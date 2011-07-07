@@ -46,6 +46,15 @@ Optionally with the argument --number to setup multiple daemons from that
 package. The number causes multiple links to be created in /etc/sv and
 /etc/srv.
 
+Uninstalling a Plug
+===================
+
+To uninstall the plug use the ``uninstall`` command
+
+    plug uninstall --plug={package_name}.server1.plug
+
+This will also remove the links for runit.
+
 Other Commands
 ==============
 
