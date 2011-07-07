@@ -13,7 +13,7 @@ def read(fname):
 
 setup(
     name='plug',
-    version='0.1.0',
+    version='0.1.1',
     description='A tool for creating pluggable web-processes for deployment ',
     keywords = 'deployment packaging',
     url='https://github.com/philipcristiano/plug',
