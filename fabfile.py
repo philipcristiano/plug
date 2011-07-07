@@ -1,4 +1,5 @@
 from fabric.api import *
+import time
 
 env.hosts = ['33.33.33.10']
 env.password = 'vagrant'
@@ -28,4 +29,5 @@ def test():
     #sudo('plug install --plug=/tmp/plug-0.1.0.server2.plug')
     #sudo('plug setup --plug=plug-0.1.0.server2.plug')
     sudo('plug list')
+    time.sleep(1)
     sudo('plug status')
