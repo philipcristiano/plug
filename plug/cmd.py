@@ -52,9 +52,7 @@ def cmd_install(options):
 
     run_commands(commands)
 
-    config_path = '{0}/plug.config'.format(plug_path)
-
-    plug_config = ConfigObj(config_path)
+    plug_config = get_config_for_plug(plug_name)
     command = plug_config['command']
     user = plug_config['user']
 
@@ -74,10 +72,16 @@ def cmd_setup(options):
     plug_name = options.plug
     instance_number = int(options.number)
     plug_path = installed_plug_path(plug_name)
+    user = get_config_for_plug(plug_name)['user']
     for i in range(instance_number):
         instance_name = '{0}.{1}'.format(plug_name, i)
+        instance_path = instance_plug_path(plug_name, i)
         commands = [
-            link(plug_path, '/etc/sv/{0}'.format(instance_name)),
+            make_directory('/srv/plug/plug_instances'),
+            remove_directory(instance_path),
+            copy(plug_path, instance_path),
+            chown(user, instance_path),
+            link(instance_path, '/etc/sv/{0}'.format(instance_name)),
             link('/etc/sv/{0}'.format(instance_name), '/etc/service/{0}'.format(instance_name))
         ]
         run_commands(commands)
@@ -99,7 +103,7 @@ def cmd_uninstall(options):
     commands = [
         remove_directory(installed_plug_path(options.plug)),
     ]
-    for directory in ['/etc/service', '/etc/sv']:
+    for directory in ['/etc/service', '/etc/sv', '/srv/plug/plug_instances']:
         for service in sorted(os.listdir(directory)):
             if service.startswith(options.plug):
                 service_path = '{0}/{1}'.format(directory, service)
@@ -112,6 +116,9 @@ def chown(user, path):
 
 def copy(src, dst):
     return 'cp -r {0} {1}'.format(src, dst)
+
+def get_config_for_plug(plug_name):
+    return ConfigObj(installed_plug_path(plug_name) + '/plug.config')
 
 def create_virtual_env(path):
     return 'virtualenv --no-site-packages --distribute {0}'.format(path)
@@ -152,6 +159,9 @@ def update_distribute(path):
 ## Path Generation
 def installed_plug_path(plug_name):
     return '{0}/{1}'.format(install_path(), plug_name)
+
+def instance_plug_path(plug_name, number):
+    return '/srv/plug/plug_instances/{0}.{1}'.format(plug_name, number)
 
 def install_path():
     return '/srv/plug/plugs'
