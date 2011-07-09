@@ -106,6 +106,8 @@ def cmd_uninstall(options):
     for directory in ['/etc/service', '/etc/sv', '/srv/plug/plug_instances']:
         for service in sorted(os.listdir(directory)):
             if service.startswith(options.plug):
+                if directory == '/etc/service':
+                    commands.append('sv stop {0}'.format(service))
                 service_path = '{0}/{1}'.format(directory, service)
                 commands.append(remove_directory(service_path))
     run_commands(commands)
