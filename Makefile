@@ -22,7 +22,7 @@ requirements: virtualenv
 	bin/easy_install nose_machineout
 
 create: dist
-	bin/plug create --package=dist/plug-0.1.1.tar.gz
+	bin/plug create --package=dist/plug-0.1.2.tar.gz
 
 deploy: dist
 	bin/fab deploy
