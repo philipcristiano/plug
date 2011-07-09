@@ -29,5 +29,5 @@ def test():
     #sudo('plug install --plug=/tmp/plug-0.1.1.server2.plug')
     #sudo('plug setup --plug=plug-0.1.1.server2.plug')
     sudo('plug list')
-    time.sleep(1)
+    time.sleep(3)
     sudo('plug status')
