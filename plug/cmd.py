@@ -135,7 +135,11 @@ def install_package(path):
     return '{0}/bin/pip install {0}/package.tgz --download-cache={0}/plug_package_cache'.format(path)
 
 def installed_plugs():
-    return sorted(os.listdir(install_path()))
+    try:
+        return sorted(os.listdir(install_path()))
+    except OSError:
+        # There is no directory and no plug installs
+        return []
 
 def link(src, dst):
     return 'ln -fs "{0}" "{1}"'.format(src, dst)
