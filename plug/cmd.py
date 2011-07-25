@@ -155,8 +155,8 @@ def remove_directory(path):
 
 def runit_run_script(root_path, command, user):
     return """#!/bin/sh
-
-exec su {2} -c "cd {0}; {0}/{1}"
+cd {0}
+exec sudo su {2} -c "exec {0}/{1}"
 """.format(root_path, command, user)
 
 def update_distribute(path):
