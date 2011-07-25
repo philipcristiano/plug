@@ -7,23 +7,21 @@ import subprocess
 import sys
 
 parser = OptionParser()
-parser.add_option('--package', dest='package', help='Source package')
-parser.add_option('--plug', dest='plug', help='Plug Path')
 parser.add_option('--number', dest='number', help='Number of instances', default="1")
 
 
 ## Plug Commands
 
-def cmd_create(options):
-    short_package = os.path.split(options.package)[1]
+def cmd_create(options, package):
+    short_package = os.path.split(package)[1]
     short_package = short_package.split('.tar.gz')[0]
     commands = [
         remove_directory('tmp'),
         create_virtual_env('tmp'),
         make_directory('tmp/plug_package_cache'),
         update_distribute('tmp'),
-        download_dependencies('tmp', options.package),
-        copy(options.package, 'tmp/package.tgz'),
+        download_dependencies('tmp', package),
+        copy(package, 'tmp/package.tgz'),
     ]
     run_commands(commands)
 
@@ -38,13 +36,13 @@ def cmd_create(options):
         run_commands(commands)
 
 
-def cmd_install(options):
-    plug_name = os.path.split(options.plug)[1]
+def cmd_install(options, plug):
+    plug_name = os.path.split(plug)[1]
     plug_path = installed_plug_path(plug_name)
 
     commands = [
         make_directory(plug_path),
-        extract_plug(options.plug, plug_path),
+        extract_plug(plug, plug_path),
         create_virtual_env(plug_path),
         update_distribute(plug_path),
         install_package(plug_path),
@@ -68,8 +66,8 @@ def cmd_install(options):
     run_commands(commands)
 
 
-def cmd_setup(options):
-    plug_name = options.plug
+def cmd_setup(options, plug):
+    plug_name = plug
     instance_number = int(options.number)
     plug_path = installed_plug_path(plug_name)
     user = get_config_for_plug(plug_name)['user']
@@ -96,16 +94,16 @@ def cmd_list(options):
     for item in installed_plugs():
         print item
 
-def cmd_uninstall(options):
-    if not options.plug in installed_plugs():
+def cmd_uninstall(options, plug):
+    if not plug in installed_plugs():
         print 'That plug is not installed, for a list of install plugs run `plug list`'
         return
     commands = [
-        remove_directory(installed_plug_path(options.plug)),
+        remove_directory(installed_plug_path(plug)),
     ]
     for directory in ['/etc/service', '/etc/sv', '/srv/plug/plug_instances']:
         for service in sorted(os.listdir(directory)):
-            if service.startswith(options.plug):
+            if service.startswith(plug):
                 if directory == '/etc/service':
                     commands.append('sv stop {0}'.format(service))
                 service_path = '{0}/{1}'.format(directory, service)
@@ -174,7 +172,7 @@ def run_commands(commands):
         print command
         cmd_args = shlex.split(command)
         p = subprocess.Popen(cmd_args)
-        p.wait()
+        assert p.wait() == 0, 'There was an error running this command'
 
 def print_command(command):
     cmd_args = shlex.split(command)
@@ -192,4 +190,4 @@ def main():
         'list': cmd_list,
         'uninstall': cmd_uninstall,
     }
-    funcs[args[0]](options)
+    funcs[args[0]](options, *args[1:])

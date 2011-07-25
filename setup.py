@@ -6,14 +6,12 @@ use_setuptools()
 import os
 from setuptools import setup, find_packages
 
-
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
-
 setup(
     name='plug',
-    version='0.1.2',
+    version='0.1.3',
     description='A tool for creating pluggable web-processes for deployment ',
     keywords = 'deployment packaging',
     url='https://github.com/philipcristiano/plug',
@@ -23,6 +21,7 @@ setup(
     packages=['plug'],
     install_requires=[
         'configobj==4.6.0',
+        'virtualenv',
     ],
     test_suite='tests',
     long_description=read('README.rst'),
