@@ -38,6 +38,8 @@ def cmd_create(options, package):
 
 def cmd_install(options, plug):
     plug_name = os.path.split(plug)[1]
+    if plug_name in installed_plugs():
+        cmd_uninstall(options, plug_name)
     plug_path = installed_plug_path(plug_name)
 
     commands = [
