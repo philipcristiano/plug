@@ -18,7 +18,7 @@ Creating a Plug
 
 To create a plug you create a config file with minimal information then run
 
-    plug create --package={package_name}
+    plug create {package_name}
 
 The config file looks something like:
 
@@ -35,12 +35,12 @@ Installing a Plug
 
 Once you put this on your system you can run
 
-    plug install --plug={package_name}.server1.plug
+    plug install {package_name}.server1.plug
 
 This will create a new virtualenv in /srv/plug ready to be setup as a daemon.
 To have runit start the process you run:
 
-    plug setup --plug={package_name}.server1.plug
+    plug setup {package_name}.server1.plug
 
 Optionally with the argument --number to setup multiple daemons from that
 package. The number causes multiple links to be created in /etc/sv and
@@ -51,7 +51,7 @@ Uninstalling a Plug
 
 To uninstall the plug use the ``uninstall`` command
 
-    plug uninstall --plug={package_name}.server1.plug
+    plug uninstall {package_name}.server1.plug
 
 This will also remove the links for runit.
 
