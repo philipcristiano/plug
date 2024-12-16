@@ -20,7 +20,7 @@ setup(
     license='BSD',
     packages=['plug'],
     install_requires=[
-        'configobj==4.6.0',
+        'configobj==5.0.9',
         'virtualenv',
     ],
     test_suite='tests',
